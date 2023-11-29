@@ -30,10 +30,12 @@ public class RemoteDesktop {
                 System.out.println("Client accepted: " + socket.getInetAddress().getHostAddress());
 
                 // Handle request thread
-                new Thread(() -> {
-                    handleClientRequest(socket);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleClientRequest(socket);
+                    }
                 }).start();
-
             }
 
         } catch (Exception e) {
@@ -47,18 +49,34 @@ public class RemoteDesktop {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
-            // Recieving request from the client
-            String request = reader.readLine();
+            while (!socket.isClosed()) {
 
-            // Check if shutdown
-            if (request.equals(EControlCode.SHUTDOWN)) {
-                Runtime.getRuntime().exec(new String[]{"shutdown -s -t 3600"});
+                // Recieving request from the client
+//                EControlCode request = EControlCode.valueOf(reader.readLine());
+                String request = reader.readLine();
+
+                // Check if shutdown
+                if (request.equals(EControlCode.SHUTDOWN.toString())) {
+                    Runtime.getRuntime().exec("shutdown -s -t 3600");
+                    writer.println("\tComputer will be turned off in 1 hour");
+                    writer.flush();
+                }
+
+                // Check if restart
+                else if (request.equals(EControlCode.RESTART.toString())) {
+                    Runtime.getRuntime().exec("shutdown -r -t 3600");
+                    System.out.println("\tComputer will be restarted in 1 hour");
+                    writer.println("\tComputer will be restarted in 1 hour");
+                    writer.flush();
+                }
+
+                else if (request.equals(EControlCode.EXITSHUTDOWN.toString())) {
+                    Runtime.getRuntime().exec("shutdown -a");
+                    System.out.println("\tComputer will be restarted in 1 hour");
+                    writer.println("\tCancel shutdown process");
+                    writer.flush();
+                }
             }
-
-            // Check if restart
-            else if (request.equals(EControlCode.RESTART)) {
-                Runtime.getRuntime().exec(new String[]{"shutdown -r -t 3600"});
-            };
 
         } catch (IOException ex) {
             Logger.getLogger(RemoteDesktop.class.getName()).log(Level.SEVERE, null, ex);
