@@ -5,11 +5,14 @@
 package client;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +32,7 @@ public class Client {
 
             // Initialize the output and input objects
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             Scanner sc = new Scanner(System.in);
 
             boolean isDisconnect = false;
@@ -38,26 +41,60 @@ public class Client {
                 System.out.println("\nMENU: ");
                 System.out.println("1. Shutdown");
                 System.out.println("2. Restart");
+                System.out.println("3. Turn off shutdown");
+                System.out.println("4. Screenshot");
+                System.out.println("[0]. Disconnect the server");
+
                 int choice = Integer.parseInt(sc.nextLine());
+
                 switch (choice) {
+                    case 0: {
+                        socket.close();
+                        break;
+                    }
                     case 1: {
                         writer.println(EControlCode.SHUTDOWN);
-                        writer.flush();
+                        System.out.println(reader.readLine());
                         break;
                     }
 
                     case 2: {
                         writer.println(EControlCode.RESTART);
-                        writer.flush();
+                        System.out.println(reader.readLine());
                         break;
                     }
-                    default:
-                        throw new AssertionError();
+
+                    case 3: {
+                        writer.println(EControlCode.EXITSHUTDOWN);
+                        System.out.println(reader.readLine());
+                        break;
+                    }
+
+                    case 4: {
+                        writer.println(EControlCode.SCREEENSHOT);
+
+                        // Read Image length
+                        int imageSize = Integer.parseInt(reader.readLine());
+
+                        // Read Image bytes
+                        byte[] imageBytes = new byte[imageSize];
+                        int byteRead = socket.getInputStream().read(imageBytes);
+
+                        // Check if the image has been read or not
+                        // Then save to the folder
+                        if (byteRead > 0) {
+                            System.out.print("Save image as a name: ");
+                            String imageName = sc.nextLine();
+                            
+                            
+                        }
+                        break;
+                    }
                 }
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 }

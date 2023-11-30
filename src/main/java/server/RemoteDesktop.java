@@ -68,7 +68,6 @@ public class RemoteDesktop {
                     Runtime.getRuntime().exec("shutdown -s -t 3600");
                     System.out.println("\tComputer will be turned off in 1 hour");
                     writer.println("\tComputer will be turned off in 1 hour");
-                    writer.flush();
                 }
 
                 // Check if restart
@@ -76,14 +75,12 @@ public class RemoteDesktop {
                     Runtime.getRuntime().exec("shutdown -r -t 3600");
                     System.out.println("\tComputer will be restarted in 1 hour");
                     writer.println("\tComputer will be restarted in 1 hour");
-                    writer.flush();
                 }
 
                 else if (request.equals(EControlCode.EXITSHUTDOWN.toString())) {
                     Runtime.getRuntime().exec("shutdown -a");
                     System.out.println("\tCancel shutdown process");
                     writer.println("\tCancel shutdown process");
-                    writer.flush();
                 }
 
                 // Take a screenshot using BufferedImage
@@ -98,14 +95,18 @@ public class RemoteDesktop {
                     Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
                     BufferedImage screenshot = new Robot().createScreenCapture(screenRect);
 
-                    // Create the buffer array containing the image buffered
+                    // Capture data wirtten to a stream in a byte array
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
                     // Convert the image buffer to png image compression
                     ImageIO.write(screenshot, "png", baos);
 
-                    // Write the length of image and write the bytearray to the cliant
-                    writer.print(baos);
+                    // Write the size of the image
+                    writer.println(baos.size());
+
+                    // Write the byte array to the client
+                    socket.getOutputStream().write(baos.toByteArray());
+
                 }
             }
 
