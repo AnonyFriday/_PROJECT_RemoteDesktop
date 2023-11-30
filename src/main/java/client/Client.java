@@ -83,8 +83,13 @@ public class Client {
                         // Read Image bytes
                         byte[] imageBytes = new byte[imageSize];
 
-                        // Change from read() tro readNBytes()
-                        // read does not guarantee to read the whole array byte
+                        /*
+                         * Change from read() tro readNBytes()
+                         * read() does not guarantee to read the whole array byte
+                         *
+                         * This method does not close the input stream => remember to pass a fullsize or
+                         * raise a runtimeerror
+                         */
                         int byteRead = socket.getInputStream().readNBytes(imageBytes, 0, imageSize);
 
                         // Check if the image has been read or not
