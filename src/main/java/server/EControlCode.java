@@ -12,4 +12,5 @@ public enum EControlCode {
     SHUTDOWN,
     RESTART,
     EXITSHUTDOWN,
+    SCREEENSHOT,
 }
