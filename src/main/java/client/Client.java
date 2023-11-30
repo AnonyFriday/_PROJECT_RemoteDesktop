@@ -12,6 +12,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -38,6 +41,7 @@ public class Client {
             boolean isDisconnect = false;
 
             while (!isDisconnect) {
+
                 System.out.println("\nMENU: ");
                 System.out.println("1. Shutdown");
                 System.out.println("2. Restart");
@@ -78,15 +82,22 @@ public class Client {
 
                         // Read Image bytes
                         byte[] imageBytes = new byte[imageSize];
-                        int byteRead = socket.getInputStream().read(imageBytes);
+
+                        // Change from read() tro readNBytes()
+                        // read does not guarantee to read the whole array byte
+                        int byteRead = socket.getInputStream().readNBytes(imageBytes, 0, imageSize);
 
                         // Check if the image has been read or not
                         // Then save to the folder
                         if (byteRead > 0) {
                             System.out.print("Save image as a name: ");
                             String imageName = sc.nextLine();
-                            
-                            
+
+                            // Locate the image directory
+                            Path imagePath = Paths.get("./src/main/java/client/images/" + imageName + ".png").toAbsolutePath();
+
+                            Files.write(imagePath, imageBytes);
+                            System.out.println("Saving image successfully");
                         }
                         break;
                     }

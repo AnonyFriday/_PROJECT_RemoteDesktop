@@ -87,8 +87,7 @@ public class RemoteDesktop {
                 // - Robot: capture pixels of screen
                 // - BufferedImage: an image object
                 // - ImageIO: save image a file PNG
-                // - Toolkit.getDefaultToolkit().getSize(): get the size of the screen
-                // - 
+                // - Toolkit.getDefaultToolkit().getSize(): get the size of the screen 
                 else if (request.equals(EControlCode.SCREEENSHOT.toString())) {
 
                     // Create the rectangle bound for screenshot create the image object then passed into it
@@ -106,14 +105,10 @@ public class RemoteDesktop {
 
                     // Write the byte array to the client
                     socket.getOutputStream().write(baos.toByteArray());
-
                 }
             }
-
-        } catch (IOException ex) {
-            Logger.getLogger(RemoteDesktop.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (AWTException ex) {
-            Logger.getLogger(RemoteDesktop.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | AWTException ex) {
+            ex.printStackTrace();
         }
     }
 }
